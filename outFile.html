@@ -39,7 +39,7 @@
 	-->
 	<div class="potree_container" style="position: absolute; width: 100%; height: 100%; left: 0px; top: 0px; ">
 		<div id="potree_render_area"></div>
-		<div id="potree_sidebar_container"> </div>
+		<div id="potree_sidebar_container"> </div>  <!--左侧工具窗体所在的容器-->
 	</div>
 	
 	<script>
@@ -62,7 +62,7 @@
 			//$("#menu_scene").next().show();
 			viewer.toggleSidebar(); //左上按钮，点击才显示工具条的窗体，这句话显示工具条窗体
 		});
-		
+		//{type: 'pointcloud_loaded', pointcloud: pointcloud}
 		Potree.loadPointCloud("pointclouds/outFile/cloud.js", "outFile", e => {
 			let pointcloud = e.pointcloud;
 			let material = pointcloud.material;

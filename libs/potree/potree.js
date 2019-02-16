@@ -3920,6 +3920,7 @@ Potree.POCLoader = function () {
  * @param url
  * @param loadingFinishedListener executed after loading the binary has been finished
  */
+//by duans 动态加载数据
 Potree.POCLoader.load = function load (url, callback) {
 	try {
 		let pco = new Potree.PointCloudOctreeGeometry();
@@ -19316,7 +19317,7 @@ Potree.Viewer = class PotreeViewer extends THREE.EventDispatcher{
 		if (isVisible) {
 			renderArea.css('left', '0px');
 		} else {
-			renderArea.css('left', '300px');
+			renderArea.css('left', '250px'); // by duans  old 300--now 280
 		}
 	};
 
@@ -19345,7 +19346,7 @@ Potree.Viewer = class PotreeViewer extends THREE.EventDispatcher{
 		let sidebarContainer = $('#potree_sidebar_container');
 
 		sidebarContainer.load(new URL(Potree.scriptPath + '/sidebar.html').href, () => {
-			sidebarContainer.css('width', '300px');
+			sidebarContainer.css('width', '250px'); //by duans old 300  now 250
 			sidebarContainer.css('height', '100%'); //若设置50%，菜单栏下面空出，没有拓展到屏幕下边
 
 			//菜单栏的按钮，默认是显示的
@@ -19357,7 +19358,7 @@ Potree.Viewer = class PotreeViewer extends THREE.EventDispatcher{
 			//地图按钮，有些Demo不显示
 			let imgMapToggle = document.createElement('img');
 			imgMapToggle.src = new URL(Potree.resourcePath + '/icons/map_icon.png').href;
-			imgMapToggle.style.display = 'none';
+			imgMapToggle.style.display = 'none'; //by duans  注释掉可以显示地图按钮
 			imgMapToggle.onclick = e => { this.toggleMap(); }; //按钮控制地图是否显示
 			imgMapToggle.id = 'potree_map_toggle';
 
