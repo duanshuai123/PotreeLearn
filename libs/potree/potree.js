@@ -22021,6 +22021,7 @@ initSidebar = (viewer) => {
 			propertiesPanel.set(null);
 		});
 
+		//双击标注的要素，视图会放缩至要素位置
 		tree.on('dblclick','.jstree-anchor', function (e) {
 			let instance = $.jstree.reference(this);
 			let node = instance.get_node(this);
