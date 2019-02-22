@@ -57,9 +57,9 @@
 		
 		viewer.loadGUI(() => {
 			viewer.setLanguage('en');
+			$("#menu_tools").next().show();//启动时只让标注工具条展开
+			$("#menu_scene").next().show();
 			//$("#menu_appearance").next().show(); //.next().show() 是展开其节点
-			//$("#menu_tools").next().show();
-			//$("#menu_scene").next().show();
 			viewer.toggleSidebar(); //左上按钮，点击才显示工具条的窗体，这句话显示工具条窗体
 		});
 		//{type: 'pointcloud_loaded', pointcloud: pointcloud}
@@ -75,7 +75,6 @@
 		});
 		
 	</script>
-	
-	
+
   </body>
 </html>

@@ -12756,7 +12756,7 @@ Potree.MeasuringTool = class MeasuringTool extends THREE.EventDispatcher {
 			});
 		});
 
-		this.scene = new THREE.Scene();
+		this.scene = new THREE.Scene(); //显示的容器
 		this.scene.name = 'scene_measurement';
 		this.light = new THREE.PointLight(0xffffff, 1.0);
 		this.scene.add(this.light);
@@ -12814,10 +12814,12 @@ Potree.MeasuringTool = class MeasuringTool extends THREE.EventDispatcher {
 			callback: null
 		};
 
+		//InsertionCallback帮定了mouseup事件操作，当鼠标释放（mouseup)时，执行insertionCallback
 		let insertionCallback = (e) => {
 			if (e.button === THREE.MOUSE.LEFT) {
 				measure.addMarker(measure.points[measure.points.length - 1].position.clone());
 
+				//采集点若超出最大限制，就取消
 				if (measure.points.length >= measure.maxMarkers) {
 					cancel.callback();
 				}
@@ -18158,7 +18160,7 @@ Potree.Scene = class extends THREE.EventDispatcher{
 		
 		this.scene = new THREE.Scene();
 		this.sceneBG = new THREE.Scene();
-		this.scenePointCloud = new THREE.Scene();
+		this.scenePointCloud = new THREE.Scene(); //Scence只是容器，用来显示特定的元素
 
 		this.cameraP = new THREE.PerspectiveCamera(this.fov, 1, 0.1, 1000*1000);
 		this.cameraO = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000*1000);
@@ -21761,7 +21763,7 @@ initSidebar = (viewer) => {
 		elToolbar.append(createToolIcon(
 			Potree.resourcePath + '/icons/angle.png',
 			'[title]tt.angle_measurement',
-			function () {
+			function () { //单击这个工具时，视图中就开始插入要素，要素再更新几何
 				$('#menu_measurements').next().slideDown();
 				let measurement = measuringTool.startInsertion({
 					showDistances: false,
