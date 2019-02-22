@@ -12226,7 +12226,7 @@ Potree.Version.prototype.upTo = function (version) {
 	return !this.newerThan(version);
 };
 
-
+//封装每个量测的整体要素，包括圆球节点、线、Label、数值内容
 Potree.Measure = class Measure extends THREE.Object3D {
 	constructor () {
 		super();
@@ -12294,7 +12294,7 @@ Potree.Measure = class Measure extends THREE.Object3D {
 		this.areaLabel.setTextColor({r: 180, g: 220, b: 180, a: 1.0});
 		this.areaLabel.material.depthTest = false;
 		this.areaLabel.material.opacity = 1;
-		this.areaLabel.visible = false; ;
+		this.areaLabel.visible = false;
 		this.add(this.areaLabel);
 	}
 
@@ -21120,6 +21120,7 @@ Potree.MapView = class {
 		this.sourcesLabelLayer.setVisible(show);
 	}
 
+	//地图
 	init () {
 		this.elMap = $('#potree_map');
 		this.elMap.draggable({ handle: $('#potree_map_header') });
