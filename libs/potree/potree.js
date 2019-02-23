@@ -329,16 +329,16 @@ Potree.toMaterialName = function(materialID) {
 
 Potree.getMeasurementIcon = function(measurement){
 	if (measurement instanceof Potree.Measure) {
-		if (measurement.showDistances && !measurement.showArea && !measurement.showAngles) {
-			return `${Potree.resourcePath}/icons/distance.svg`;
-		} else if (measurement.showDistances && measurement.showArea && !measurement.showAngles) {
-			return `${Potree.resourcePath}/icons/area.svg`;
-		} else if (measurement.maxMarkers === 1) {
+	  	if (measurement.GeoType === 0) {
 			return `${Potree.resourcePath}/icons/point.svg`;
-		} else if (!measurement.showDistances && !measurement.showArea && measurement.showAngles) {
-			return `${Potree.resourcePath}/icons/angle.png`;
-		} else if (measurement.showHeight) {
+		 }else if (measurement.GeoType ===1) {
+			return `${Potree.resourcePath}/icons/distance.svg`;
+		} else if (measurement.GeoType ===2) {
+			return `${Potree.resourcePath}/icons/area.svg`;
+		} else if (measurement.GeoType === 3) {
 			return `${Potree.resourcePath}/icons/height.svg`;
+		} else if (measurement.GeoType === 4) {
+			return `${Potree.resourcePath}/icons/angle.png`;
 		} else {
 			return `${Potree.resourcePath}/icons/distance.svg`;
 		}
@@ -12242,6 +12242,7 @@ Potree.Measure = class Measure extends THREE.Object3D {
 		this._showAngles = false;
 		this._showHeight = false;
 		this.maxMarkers = Number.MAX_SAFE_INTEGER;
+		this.GeoType = -1;//增加了几何的类型 by duans
 
 		this.sphereGeometry = new THREE.SphereGeometry(0.4, 10, 10);
 		this.color = new THREE.Color(0xff0000);
@@ -12806,6 +12807,7 @@ Potree.MeasuringTool = class MeasuringTool extends THREE.EventDispatcher {
 		measure.closed = args.closed || false;
 		measure.maxMarkers = args.maxMarkers || Infinity;
 		measure.name = args.name || 'Measurement';
+		measure.GeoType = args.GeoType ; // 运算符||表示或，bool判断用的？？
 
 		this.scene.add(measure);
 
@@ -21754,33 +21756,12 @@ initSidebar = (viewer) => {
 	};
 
 	let measuringTool = new Potree.MeasuringTool(viewer);//量测工具
-	let profileTool = new Potree.ProfileTool(viewer); //平面工具
+	let profileTool = new Potree.ProfileTool(viewer); //平面工具,可用于
 	let volumeTool = new Potree.VolumeTool(viewer); //立体量测工具
 
 	// by duans 初始化工具条
 	function initToolbar () {
-		// ANGLE 角度量测工具
 		let elToolbar = $('#tools');
-		elToolbar.append(createToolIcon(
-			Potree.resourcePath + '/icons/angle.png',
-			'[title]tt.angle_measurement',
-			function () { //单击这个工具时，视图中就开始插入要素，要素再更新几何
-				$('#menu_measurements').next().slideDown();
-				let measurement = measuringTool.startInsertion({
-					showDistances: false,
-					showAngles: true,
-					showArea: false,
-					closed: true,
-					maxMarkers: 3,
-					name: 'Angle'});
-
-				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
-				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
-				$.jstree.reference(jsonNode.id).deselect_all();
-				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
-			}
-		));
-
 		// POINT 点工具
 		elToolbar.append(createToolIcon(
 			Potree.resourcePath + '/icons/point.svg',
@@ -21794,34 +21775,55 @@ initSidebar = (viewer) => {
 					showArea: false,
 					closed: true,
 					maxMarkers: 1,
-					name: 'Point'});
-
-				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
-				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
-				//$.jstree.reference(jsonNode.id).deselect_all();
-				//$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
-			}
-		));
-
-		// DISTANCE  //距离工具
-		elToolbar.append(createToolIcon(
-			Potree.resourcePath + '/icons/distance.svg',
-			'[title]tt.distance_measurement',
-			function () {
-				$('#menu_measurements').next().slideDown();
-				let measurement = measuringTool.startInsertion({
-					showDistances: true,
-					showArea: false,
-					closed: false,
-					name: 'Distance'});
-
-				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+					name: 'Point',
+					GeoType: 0 });
+				let measurementsRoot = $("#jstree_scene").jstree().get_json("HD_Section");
 				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
 				$.jstree.reference(jsonNode.id).deselect_all();
 				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
 			}
 		));
 
+		// DISTANCE  //refLane工具 改成了道路线工具
+		elToolbar.append(createToolIcon(
+			Potree.resourcePath + '/icons/distance.svg',
+			'[title]tt.distance_measurement',
+			function () {
+				$('#menu_measurements').next().slideDown();
+				let measurement = measuringTool.startInsertion({
+					showDistances: false,
+					showArea: false,
+					closed: false,
+					name: 'RefLane',
+					GeoType: 1 });
+
+				let RoadLaneRoot = $("#jstree_scene").jstree().get_json("HD_Section");
+				let jsonNode = RoadLaneRoot.children.find(child => child.data.uuid === measurement.uuid);
+				$.jstree.reference(jsonNode.id).deselect_all();
+				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+			}
+		));
+
+		// AREA  //面工具
+		elToolbar.append(createToolIcon(
+			Potree.resourcePath + '/icons/area.svg',
+			'[title]tt.area_measurement',
+			function () {
+				$('#menu_measurements').next().slideDown();
+				let measurement = measuringTool.startInsertion({
+					showDistances: false,
+					showArea: false,
+					closed: true,
+					name: 'Area',
+					GeoType: 2 });
+		
+				let RoadLaneRoot = $("#jstree_scene").jstree().get_json("HD_Section");
+				let jsonNode = RoadLaneRoot.children.find(child => child.data.uuid === measurement.uuid);
+				$.jstree.reference(jsonNode.id).deselect_all();
+				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
+			}
+		));
+		
 		// HEIGHT  //高度工具
 		elToolbar.append(createToolIcon(
 			Potree.resourcePath + '/icons/height.svg',
@@ -21834,28 +21836,10 @@ initSidebar = (viewer) => {
 					showArea: false,
 					closed: false,
 					maxMarkers: 2,
-					name: 'Height'});
+					name: 'Height',
+					GeoType: 3 });
 
-				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
-				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
-				$.jstree.reference(jsonNode.id).deselect_all();
-				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
-			}
-		));
-
-		// AREA  //面积工具
-		elToolbar.append(createToolIcon(
-			Potree.resourcePath + '/icons/area.svg',
-			'[title]tt.area_measurement',
-			function () {
-				$('#menu_measurements').next().slideDown();
-				let measurement = measuringTool.startInsertion({
-					showDistances: true,
-					showArea: true,
-					closed: true,
-					name: 'Area'});
-
-				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
+				let measurementsRoot = $("#jstree_scene").jstree().get_json("HD_Section");
 				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === measurement.uuid);
 				$.jstree.reference(jsonNode.id).deselect_all();
 				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
@@ -21988,11 +21972,22 @@ initSidebar = (viewer) => {
 
 		let pcID = tree.jstree('create_node', "#", { "text": "<b>Point Clouds</b>", "id": "pointclouds"}, "last", false, false);
 		let measurementID = tree.jstree('create_node', "#", { "text": "<b>Measurements</b>", "id": "measurements" }, "last", false, false);
+
+		//by duans添加地图要素
+		let HD_SectionID = tree.jstree('create_node', "#", { "text": "<b>HD_Section</b>", "id": "HD_Section" }, "last", false, false);
+		let HD_PoleID = tree.jstree('create_node', "#", { "text": "<b>HD_Pole</b>", "id": "HD_Pole" }, "last", false, false);
+		let HD_CrossWalkID = tree.jstree('create_node', "#", { "text": "<b>HD_CrossWalk</b>", "id": "HD_CrossWalk" }, "last", false, false);
+
 		let annotationsID = tree.jstree('create_node', "#", { "text": "<b>Annotations</b>", "id": "annotations" }, "last", false, false);
 		let otherID = tree.jstree('create_node', "#", { "text": "<b>Other</b>", "id": "other" }, "last", false, false);
 
 		tree.jstree("check_node", pcID);
 		tree.jstree("check_node", measurementID);
+		//HDMap要素
+		tree.jstree("check_node", HD_SectionID);
+		tree.jstree("check_node", HD_PoleID);
+		tree.jstree("check_node", HD_CrossWalkID);
+
 		tree.jstree("check_node", annotationsID);
 		tree.jstree("check_node", otherID);
 
@@ -22126,7 +22121,7 @@ initSidebar = (viewer) => {
 		let onMeasurementAdded = (e) => {
 			let measurement = e.measurement;
 			let icon = Potree.getMeasurementIcon(measurement);
-			createNode(measurementID, measurement.name, icon, measurement);
+			createNode(HD_SectionID, measurement.name, icon, measurement);
 		};
 
 		let onVolumeAdded = (e) => {
@@ -22168,10 +22163,27 @@ initSidebar = (viewer) => {
 		viewer.scene.addEventListener("polygon_clip_volume_added", onVolumeAdded);
 		viewer.scene.annotations.addEventListener("annotation_added", onAnnotationAdded);
 
+		//不同类型需要从不同目录中寻找 by duans
+		let getGeoType = (measurement) => {
+			if (measurement.GeoType === 0) {
+				return "HD_Section";//点类型
+			}else if (measurement.GeoType===1) {
+				return  "HD_Section";
+			} else if (measurement.GeoType===2) {
+				return "HD_Section";//面类型
+			} else if (measurement.GeoType===3) {
+				return "HD_Section";//高度量测结果
+			} else if (measurement.GeoType===4) {
+				return "HD_Section";
+			} else {
+				return TYPE.OTHER;
+			}
+		};
+
 		let onMeasurementRemoved = (e) => {
-			let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
-			let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.measurement.uuid);
-			
+			let GType = getGeoType(e.measurement); //获取
+			let measurementsRoot = $("#jstree_scene").jstree().get_json(GType);
+			let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.measurement.uuid);	
 			tree.jstree("delete_node", jsonNode.id);
 		};
 
@@ -24053,16 +24065,16 @@ Potree.PropertiesPanel = class PropertriesPanel{
 
 		let getType = (measurement) => {
 			if (measurement instanceof Potree.Measure) {
-				if (measurement.showDistances && !measurement.showArea && !measurement.showAngles) {
-					return TYPE.DISTANCE;
-				} else if (measurement.showDistances && measurement.showArea && !measurement.showAngles) {
-					return TYPE.AREA;
-				} else if (measurement.maxMarkers === 1) {
-					return TYPE.POINT;
-				} else if (!measurement.showDistances && !measurement.showArea && measurement.showAngles) {
-					return TYPE.ANGLE;
-				} else if (measurement.showHeight) {
+			 	if (measurement.GeoType === 0) {
+					return TYPE.POINT;//点类型
+				 }else if (measurement.GeoType===1) {
+					return TYPE.DISTANCE;//线类型
+				} else if (measurement.GeoType===2) {
+					return TYPE.AREA;//面类型
+				} else if (measurement.GeoType===3) {
 					return TYPE.HEIGHT;
+				} else if (measurement.GeoType===4) {
+					return TYPE.ANGLE;
 				} else {
 					return TYPE.OTHER;
 				}
@@ -24074,7 +24086,6 @@ Potree.PropertiesPanel = class PropertriesPanel{
 		};
 
 		//this.container.html("measurement");
-
 		let type = getType(object);
 		let Panel = type.panel;
 
