@@ -338,7 +338,7 @@ Potree.getMeasurementIcon = function(measurement){
 		} else if (measurement.GeoType === 3) {
 			return `${Potree.resourcePath}/icons/HDStopLine.svg`;//停止线
 		} else if (measurement.GeoType === 4) {
-			return `${Potree.resourcePath}/icons/HDIndicator.png`;//指示牌
+			return `${Potree.resourcePath}/icons/HDTrafficSign.png`;//指示牌
 		} else if (measurement.GeoType === 5) {
 			return `${Potree.resourcePath}/icons/HDLight.png`;//红绿灯
 		} else if (measurement.GeoType === 6) {
@@ -15607,7 +15607,7 @@ Potree.ProtobufExporter = class ProtobufExporter
 				}
 				stringRoadLine += '\n     } \n    }'; //封闭lines  lanes
 				stringSection += stringRoadLine;
-			}else{ //其余输出元素
+			}else{ //其余输出元素 
 			}
 		}
 		stringSection += '\n }'; //封闭Section
@@ -15619,12 +15619,12 @@ Potree.ProtobufExporter = class ProtobufExporter
 		if (!(measurements instanceof Array)){
 			measurements = [measurements];
 		}
-
 		measurements = measurements.filter(m => m instanceof Potree.Measure);
-		let vecHDSection = [];//第一个存放refLane,剩下的是RoadLane
-
-		//输出Section 
+		
+		//输出要素，Section+Other
 		let StrOutPutContent = "";
+		let StrOtherItemContent = "";
+		let vecHDSection = [];//第一个存放refLane,剩下的是RoadLane
 		for (let measure of measurements){
 			if(measure.GeoType ===1){//RefLane重新添加一个Section
 				if(vecHDSection.length>0){
@@ -15638,10 +15638,18 @@ Potree.ProtobufExporter = class ProtobufExporter
 			}else if(measure.GeoType ===2){	//RoadLane,紧随这RefLane
 				vecHDSection.push(measure);
 
-			}else{
-				vecHDSection.push(measure);
+			}else if(measure.GeoType >2){	//Map中其它元素
+				//measure
 			}
 		}
+		//最后一次的Section需要补充输出
+		if(vecHDSection.length>0){
+			//先输出再清空
+			let sectionStr = Potree.ProtobufExporter.SectionToString(vecHDSection);
+			StrOutPutContent += sectionStr;
+			vecHDSection.splice(0,vecHDSection.length);//清空
+		}
+
 		return StrOutPutContent;
 	}
 };
@@ -21925,18 +21933,18 @@ initSidebar = (viewer) => {
 
 		// AREA  //指示牌工具
 		elToolbar.append(createToolIcon(
-			Potree.resourcePath + '/icons/HDIndicator.png',
-			'[title]tt.Indicator',
+			Potree.resourcePath + '/icons/HDTrafficSign.png',
+			'[title]tt.TrafficSign',
 			function () {
 				$('#menu_measurements').next().slideDown();
 				let measurement = measuringTool.startInsertion({
 					showDistances: false,
 					showArea: false,
 					closed: true,
-					name: 'Indicator',
+					name: 'TrafficSign',
 					GeoType: 4 });//停止线的面
 				
-				let RoadLaneRoot = $("#jstree_scene").jstree().get_json("HD_Indicator");
+				let RoadLaneRoot = $("#jstree_scene").jstree().get_json("HD_TrafficSign");
 				let jsonNode = RoadLaneRoot.children.find(child => child.data.uuid === measurement.uuid);
 				$.jstree.reference(jsonNode.id).deselect_all();
 				$.jstree.reference(jsonNode.id).select_node(jsonNode.id);
@@ -22127,7 +22135,7 @@ initSidebar = (viewer) => {
 		//by duans添加地图要素
 		let HD_SectionID = tree.jstree('create_node', "#", { "text": "<b>HD_Section</b>", "id": "HD_Section" }, "last", false, false);
 		let HD_StopLineID = tree.jstree('create_node', "#", { "text": "<b>HD_StopLine</b>", "id": "HD_StopLine" }, "last", false, false);
-		let HD_IndicatorID = tree.jstree('create_node', "#", { "text": "<b>HD_Indicator</b>", "id": "HD_Indicator" }, "last", false, false);
+		let HD_TrafficSignID = tree.jstree('create_node', "#", { "text": "<b>HD_TrafficSign</b>", "id": "HD_TrafficSign" }, "last", false, false);
 		let HD_LightID = tree.jstree('create_node', "#", { "text": "<b>HD_Light</b>", "id": "HD_Light" }, "last", false, false);
 		let HD_LaneMarkingID = tree.jstree('create_node', "#", { "text": "<b>HD_LaneMarking</b>", "id": "HD_LaneMarking" }, "last", false, false);
 		let HD_PoleID = tree.jstree('create_node', "#", { "text": "<b>HD_Pole</b>", "id": "HD_Pole" }, "last", false, false);
@@ -22141,7 +22149,7 @@ initSidebar = (viewer) => {
 		//HDMap要素
 		tree.jstree("check_node", HD_SectionID);
 		tree.jstree("check_node", HD_StopLineID);
-		tree.jstree("check_node", HD_IndicatorID);
+		tree.jstree("check_node", HD_TrafficSignID);
 		tree.jstree("check_node", HD_LightID);
 		tree.jstree("check_node", HD_LaneMarkingID);
 		tree.jstree("check_node", HD_PoleID);
@@ -22334,7 +22342,7 @@ initSidebar = (viewer) => {
 			} else if (measurement.GeoType===3) { //StopLine
 				return "HD_StopLine";//高度量测结果
 			} else if (measurement.GeoType===4) { //指示牌
-				return "HD_Indicator";
+				return "HD_TrafficSign";
 			} else if (measurement.GeoType===5) { //红绿灯
 				return "HD_Light";
 			} else if (measurement.GeoType===6) { //laneMarking
@@ -22354,7 +22362,7 @@ initSidebar = (viewer) => {
 			} else if (measurement.GeoType===3) { //StopLine
 				return HD_StopLineID;//高度量测结果
 			} else if (measurement.GeoType===4) { //指示牌
-				return HD_IndicatorID;
+				return HD_TrafficSignID;
 			} else if (measurement.GeoType===5) { //红绿灯
 				return HD_LightID;
 			} else if (measurement.GeoType===6) { //路面标识 LaneMarking
