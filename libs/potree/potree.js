@@ -22577,17 +22577,22 @@ initSidebar = (viewer) => {
 			elClassificationList.append(element);
 		};
 
-		addClassificationItem(0, 'never classified');
-		addClassificationItem(1, 'unclassified');
-		addClassificationItem(2, 'ground');
-		addClassificationItem(3, 'low vegetation');
-		addClassificationItem(4, 'medium vegetation');
-		addClassificationItem(5, 'high vegetation');
-		addClassificationItem(6, 'building');
-		addClassificationItem(7, 'low point(noise)');
-		addClassificationItem(8, 'key-point');
-		addClassificationItem(9, 'water');
-		addClassificationItem(12, 'overlap');
+		addClassificationItem(0, '0-道路-Road');
+		addClassificationItem(1, '1-车道线-roadlane');
+		addClassificationItem(2, '2-停止线-stopline');
+		addClassificationItem(3, '3-斑马线-crosswalk');
+		addClassificationItem(4, '4-地面箭头-roadarrow');
+		addClassificationItem(5, '5-地面标志-lanemarking');
+		addClassificationItem(6, '6-导流线-guideline');
+		addClassificationItem(7, '7-减速带-speedbump');
+		addClassificationItem(8, '8-标志牌-trafficsign');
+		addClassificationItem(9, '9-指路牌-trafficboard');
+		addClassificationItem(10, '10-红绿灯-trafficlight');
+		addClassificationItem(11, '11-杆子-pole');
+		addClassificationItem(12, '12-建筑-building');
+		addClassificationItem(13, '13-人行道-sidewalk');
+		addClassificationItem(14, '14-背景-background');
+		addClassificationItem(15, '15-车辆行人-vehicle');
 	}
 
 	function initAccordion () {
