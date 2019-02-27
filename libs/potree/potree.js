@@ -5224,6 +5224,23 @@ Potree.Gradients = {
 	]
 };
 
+// Potree.Classification = {
+// 	'DEFAULT': {
+// 		0: new THREE.Vector4(0.5, 0.5, 0.5, 1.0),
+// 		1: new THREE.Vector4(0.5, 0.5, 0.5, 1.0),
+// 		2: new THREE.Vector4(0.63, 0.32, 0.18, 1.0),
+// 		3: new THREE.Vector4(0.0, 1.0, 0.0, 1.0),
+// 		4: new THREE.Vector4(0.0, 0.8, 0.0, 1.0),
+// 		5: new THREE.Vector4(0.0, 0.6, 0.0, 1.0),
+// 		6: new THREE.Vector4(1.0, 0.66, 0.0, 1.0),
+// 		7:	new THREE.Vector4(1.0, 0, 1.0, 1.0),
+// 		8: new THREE.Vector4(1.0, 0, 0.0, 1.0),
+// 		9: new THREE.Vector4(0.0, 0.0, 1.0, 1.0),
+// 		12:	new THREE.Vector4(1.0, 1.0, 0.0, 1.0),
+// 		'DEFAULT': new THREE.Vector4(0.3, 0.6, 0.6, 0.5)
+// 	}
+// };
+
 Potree.Classification = {
 	'DEFAULT': {
 		0: new THREE.Vector4(0.5, 0.5, 0.5, 1.0),
@@ -5236,7 +5253,12 @@ Potree.Classification = {
 		7:	new THREE.Vector4(1.0, 0, 1.0, 1.0),
 		8: new THREE.Vector4(1.0, 0, 0.0, 1.0),
 		9: new THREE.Vector4(0.0, 0.0, 1.0, 1.0),
-		12:	new THREE.Vector4(1.0, 1.0, 0.0, 1.0),
+		10: new THREE.Vector4(1.0, 1.0, 0.0, 1.0), //补充的默认颜色？？
+		11: new THREE.Vector4(1.0, 1.0, 0.5, 1.0), //柱子棕色
+		12: new THREE.Vector4(0.0, 0.0, 1.0, 1.0),
+		13: new THREE.Vector4(0.0, 0.0, 1.0, 1.0),
+		14: new THREE.Vector4(0.0, 0.0, 1.0, 1.0),
+		15: new THREE.Vector4(0.0, 0.0, 1.0, 1.0),
 		'DEFAULT': new THREE.Vector4(0.3, 0.6, 0.6, 0.5)
 	}
 };
@@ -18618,19 +18640,26 @@ Potree.Viewer = class PotreeViewer extends THREE.EventDispatcher{
 		this.edlStrength = 1.0;
 		this.edlRadius = 1.4;
 		this.useEDL = false;
+		//by duans
 		this.classifications = {
-			0: { visible: true, name: 'never classified' },
-			1: { visible: true, name: 'unclassified' },
-			2: { visible: true, name: 'ground' },
-			3: { visible: true, name: 'low vegetation' },
-			4: { visible: true, name: 'medium vegetation' },
-			5: { visible: true, name: 'high vegetation' },
-			6: { visible: true, name: 'building' },
-			7: { visible: true, name: 'low point(noise)' },
-			8: { visible: true, name: 'key-point' },
-			9: { visible: true, name: 'water' },
-			12: { visible: true, name: 'overlap' }
-		};
+			0: { visible: true, name: '0-道路-Road' },
+			1: { visible: true, name: '1-车道线-roadlane' },
+			2: { visible: true, name: '2-停止线-stopline' },
+			3: { visible: true, name: '3-斑马线-crosswalk' },
+			4: { visible: true, name: '4-地面箭头-roadarrow' },
+			5: { visible: true, name: '5-地面标志-lanemarking' },
+			6: { visible: true, name: '6-导流线-guideline' },
+			7: { visible: true, name: '7-减速带-speedbump' },
+			8: { visible: true, name: '8-标志牌-trafficsign' },
+			9: { visible: true, name: '9-指路牌-trafficboard' },
+			10: { visible: true, name: '10-红绿灯-trafficlight' },
+			11: { visible: true, name: '11-杆子-pole' },
+			12: { visible: true, name: '12-建筑-building' },
+			13: { visible: true, name: '13-人行道-sidewalk' },
+			14: { visible: true, name: '14-背景-background' },
+			15: { visible: true, name: '15-车辆行人-vehicle' },
+			16: { visible: true, name: '16-未知-Unknown' }
+		};	
 
 		this.moveSpeed = 10;
 
@@ -22587,12 +22616,20 @@ initSidebar = (viewer) => {
 		addClassificationItem(7, '7-减速带-speedbump');
 		addClassificationItem(8, '8-标志牌-trafficsign');
 		addClassificationItem(9, '9-指路牌-trafficboard');
-		addClassificationItem(10, '10-红绿灯-trafficlight');
-		addClassificationItem(11, '11-杆子-pole');
-		addClassificationItem(12, '12-建筑-building');
-		addClassificationItem(13, '13-人行道-sidewalk');
-		addClassificationItem(14, '14-背景-background');
-		addClassificationItem(15, '15-车辆行人-vehicle');
+		addClassificationItem(10, '10-红绿灯-trafficlight'); //'A'
+		addClassificationItem(11, '11-杆子-pole');			 //'B'
+		addClassificationItem(12, '12-建筑-building');		 //'C'
+		addClassificationItem(13, '13-人行道-sidewalk');	 //'D'
+		addClassificationItem(14, '14-背景-background');	//'E'
+		addClassificationItem(15, '15-车辆行人-vehicle');	 //'F'
+		addClassificationItem(16, '16-未知-Unknown');		//'G'
+		// addClassificationItem(65, '10-红绿灯-trafficlight'); //'A'
+		// addClassificationItem(66, '11-杆子-pole');			 //'B'
+		// addClassificationItem(67, '12-建筑-building');		 //'C'
+		// addClassificationItem(68, '13-人行道-sidewalk');	 //'D'
+		// addClassificationItem(69, '14-背景-background');	//'E'
+		// addClassificationItem(70, '15-车辆行人-vehicle');	 //'F'
+		// addClassificationItem(71, '16-未知-Unknown');		//'G'
 	}
 
 	function initAccordion () {
