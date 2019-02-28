@@ -12900,7 +12900,7 @@ Potree.MeasuringTool = class MeasuringTool extends THREE.EventDispatcher {
 			for(let sphere of measure.spheres){			
 				let distance = camera.position.distanceTo(sphere.getWorldPosition());
 				let pr = Potree.utils.projectedRadius(1, camera, distance, clientWidth, clientHeight);
-				let scale = (15 / pr);
+				let scale = (8 / pr);//球大小SphereSize by duans
 				sphere.scale.set(scale, scale, scale);
 			}
 
@@ -13394,7 +13394,7 @@ Potree.ProfileTool = class ProfileTool extends THREE.EventDispatcher {
 					let distance = camera.position.distanceTo(profile.points[0]);
 					let clientSize = this.viewer.renderer.getSize();
 					let pr = Potree.utils.projectedRadius(1, camera, distance, clientSize.width, clientSize.height);
-					let width = (10 / pr);
+					let width = (8 / pr);
 
 					profile.setWidth(width);
 				}
